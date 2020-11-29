@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Maven本地安装命令获取</title>
+        <link rel="stylesheet" href="plugins/elementui-2.14.1/index.css">
+
+        <script type="text/javascript" src="./js/vue/vue.js"></script>
+        <script type="text/javascript" src="plugins/elementui-2.14.1/index.js"></script>
+        <script type="text/javascript" src="./js/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="./js/vue/axios-0.18.0.js"></script>
+        <link rel="stylesheet" href="./css/index.css">
+    </head>
+    <body>
+        <div id="app">
+            <div>
+                <el-link href="https://mvnrepository.com/" type="primary" target="_blank">Maven坐标官网</el-link>
+            </div>
+            <div class="div_input" style="width: 800px">
+                <el-row>
+                    <div class="msg">{{textareaMSG}}</div>
+                </el-row>
+                <el-row>
+                    <el-col :span="24">
+                        <!--
+                            @focus为获得焦点  @blur为失去焦点
+                            &#13;   回车
+                            &#10;   换行
+                            &#9;    tab
+                        -->
+                        <el-input
+                                type="textarea"
+                                :autosize="{ minRows: 6, maxRows: 8}"
+                                placeholder="请输入内容例：&#13;&#10;<dependency>&#13;&#10;&#9;<groupId>mysql</groupId>&#13;&#10;&#9;<artifactId>mysql-connector-java</artifactId>&#13;&#10;&#9;<version>5.1.49</version>&#13;&#10;</dependency>"
+                                v-model="info.mavenStr"
+                                @focus="verify_focus_textarea($event)"
+                                @blur="verify_blur_textarea()">
+                        </el-input>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <div class="msg">{{inputMSG}}</div>
+                </el-row>
+                <el-row>
+                    <el-col :span="24">
+                        <el-input
+                                placeholder="请输入文件路径：F:\mysql-connector-java-5.1.49.jar"
+                                v-model="info.fileUrl"
+                                clearable
+                                @focus="verify_focus_input($event)"
+                                @blur="verify_blur_input()">
+                        </el-input>
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="div_button" style="width: 800px">
+                <el-row>
+                    <el-col :span="4">
+                        <div>
+                            <el-button id="button" type="primary"  @click="getCode()" primary>生成命令</el-button>
+                            <div class="msg">{{buttonMSG}}</div>
+                        </div>
+                    </el-col>
+                    <el-col :span="20">
+                        <el-input
+                                placeholder="例：mvn install:install-file -Dfile=F:\mysql-connector-java-5.1.49.jar -DgroupId=mysql -DartifactId=mysql-connector-java -Dversion=5.1.49 -Dpackaging=jar"
+                                type="textarea"
+                                @focus="verify_focus_input_result($event)"
+                                :autosize="{ minRows: 8, maxRows: 8}"
+                                v-model="textarea1">
+                        </el-input>
+                    </el-col>
+                </el-row>
+            </div>
+
+        </div>
+    </body>
+    <script>
+        new Vue({
+            el:"#app",
+            data:{
+                info:{
+                    mavenStr:"",
+                    fileUrl:"",
+                },
+                textarea1:"",
+                textareaMSG:"",
+                inputMSG:"",
+                buttonMSG:""
+            },
+            methods:{
+                verify_blur_textarea(){
+                    if (this.info.mavenStr==""){
+                        this.textareaMSG="不可为空";
+                        return false;
+                    }
+                    return true;
+                },
+                verify_blur_input(){
+                    if (this.info.fileUrl==""){
+                        this.inputMSG="不可为空";
+                        return false;
+                    }
+                    return true;
+                },
+                verify_focus_textarea(event){
+                    this.textareaMSG="";
+                    this.buttonMSG="";
+                    event.currentTarget.select();
+                },
+                verify_focus_input(event){
+                    this.inputMSG="";
+                    this.buttonMSG="";
+                    event.currentTarget.select();
+                },
+                verify_focus_input_result(event){
+                    event.currentTarget.select();
+                },
+                getCode(){
+                    if (!this.verify_blur_textarea() || !this.verify_blur_input()){
+                        this.buttonMSG="请填写信息";
+                        return;
+                    }
+                    axios.post("/MavenLocal_Install/local/getCode",this.info).then((res)=>{
+                        if (res.data.flag){
+                            this.textarea1=res.data.data;
+                            this.$message({
+                                type:'success',
+                                message:res.data.message
+                            })
+                        }else {
+                            this.$message.error(res.data.message);
+                            this.buttonMSG="请检查信息格式";
+                        }
+                    })
+                }
+            }
+        });
+    </script>
+</html>

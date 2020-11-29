@@ -1,0 +1,16 @@
+.div_input{
+    float: left;
+}
+.div_button{
+    margin-top: 17px;
+    float: left;
+}
+#button{
+    margin: 50px 0 0 20px;
+}
+.msg{
+    height: 15px;
+    color: red;
+    font-size: 12px;
+    padding-left: 20px;
+}
